@@ -1,0 +1,26 @@
+<!doctype html>
+
+<html>
+    <head>
+        <title>Tornado Plot Demo</title>
+        <script src="p5.min.js"></script>
+        <script src="sketch.js"></script>
+    </head>
+    <body>
+        <main>
+        </main>
+        <p>The graph is 100kb wide.</p>
+
+        <ul>
+            <li><b># of reads:</b> number of reads to plot.</li>
+            <li><b>ori:</b> position of the origin.</li>
+            <li><b>left/right fork rates:</b> how fast each fork progresses (nt/second).</li>
+            <li><b>rate noise:</b> how much noise to add to each fork's rate (per fork, proportion of total rate).</li>
+            <li><b>synthesis time:</b> simulated synthesis time (seconds).</li>
+            <li><b>overcut rate:</b> proportion of reads to cut apart after generation.</li>
+            <li><b>overcut exponent:</b> kludge to change distribution of cut positions (1 to cut uniformly, higher to tend to cut closer to ends).</li>
+            <li><b>block locations:</b> position of blocking elements (does nothing if block time is zero).</li>
+            <li><b>block times:</b> how long to pause at a particular block (seconds).</li>
+        </ul>
+    </body>
+</html>
