@@ -1,8 +1,19 @@
-let _reads, _numReads, _redraw, _ori, _rateNoise, _lRate, _rRate, _seconds, _overcutRate, _overcutExpt;
+let _reads, _redraw, _ori;
+let _rateNoise, _lRate, _rRate;
+let _overcutRate, _overcutExpt;
+let _undercutRate;
 let _block1Loc, _block2Loc;
 let _block1Pause, _block2Pause;
+let _population, _seconds;
+let _firingModel, _halfLife, _firingProb;
+let _numReads;
 
 let _genomeLength = 100000;
+let _nBins = 100;
+
+let w = 1000;
+let h = 800;
+let pad = 10;
 
 function handleBlock(ori, rate, t, block) {
     if (rate < 0 && block.loc < ori || rate > 0 && block.loc > ori) {
@@ -18,6 +29,62 @@ function handleBlocks(ori, rate, t, blocks) {
     t = handleBlock(ori, rate, t, blocks[0]);
     t = handleBlock(ori, rate, t, blocks[1]); // i'm lazy
     return t;
+}
+
+function computeReadTimesExponential() {
+    let result = new Array();
+    n = _population.value();
+    hl = _halfLife.value();
+    sec = _seconds.value();
+    under = _undercutRate.value();
+    ts = 0.05;
+
+    lt = hl / Math.log(2);
+
+    for (t = 0; n > 0 && t <= sec; t += ts) {
+        if (lt == 0) {
+            p = 1.0;
+        } else {
+            p = ts/lt;
+        }
+
+        fired = 0;
+        for (i = 0; i < n; i++) {
+            if (random() < p) {
+                fired += 1;
+                if (!(random() < under)) { result.push(sec - t); }
+                if (!(random() < under)) { result.push(sec - t); }
+            }
+        }
+        n -= fired;
+    }
+
+    return result;
+}
+
+function computeReadTimesLinear() {
+    // https://cabot-institute.blogspot.com/2016/12/converting-probabilities-between-time.html
+    let result = new Array();
+    n = _population.value();
+    fp = _firingProb.value();
+    sec = _seconds.value();
+    under = _undercutRate.value();
+
+    ts = 0.05;
+    fp = (1 - ((1 - fp)**(ts/1)));
+
+    for (t = 0; n > 0 && t <= sec; t+= ts) {
+        m = n;
+        for (i = 0; i < m; i++) {
+            if (random() < fp) {
+                n -= 1;
+                if (!(random() < under)) { result.push(sec - t); }
+                if (!(random() < under)) { result.push(sec - t); }
+            }
+        }
+    }
+
+    return result;
 }
 
 function generateRead(ori, lRate, rRate, t) {
@@ -59,7 +126,7 @@ function generateRead(ori, lRate, rRate, t) {
     };
 }
 
-function generateReads(n) {
+function generateReads() {
     let reads = new Array();
 
     ori = _ori.value();
@@ -68,8 +135,15 @@ function generateReads(n) {
     seconds = _seconds.value();
     overcutRate = _overcutRate.value();
     overcutExpt = _overcutExpt.value();
-    for (i = 0; i < n; i++) {
-        r = generateRead(ori, lRate, rRate, random() * seconds);
+    if (_firingModel.value() == 'e') {
+        times = computeReadTimesExponential();
+    } else if (_firingModel.value() == 'l') {
+        times = computeReadTimesLinear();
+    }
+    _numReads.html(times.length + " reads");
+
+    for (i = 0; i < times.length; i++) {
+        r = generateRead(ori, lRate, rRate, times[i]);
         if (random() < overcutRate) {
             cutLen = random()**overcutExpt * (r.end - r.start);
 
@@ -95,8 +169,6 @@ function generateReads(n) {
     return reads;
 }
 
-let _nBins = 100;
-
 function lengthHist(reads) {
     let bins = new Array(_nBins).fill(0);
     let binWidth = _genomeLength / _nBins;
@@ -113,10 +185,6 @@ function lengthHist(reads) {
     return bins;
 }
 
-let w = 1000;
-let h = 700;
-let pad = 10;
-
 function map_range(value, fromLo, fromHi, toLo, toHi) {
     return toLo + (toHi - toLo) * (value - fromLo) / (fromHi - fromLo);
 }
@@ -132,8 +200,23 @@ function plotRead(r) {
     rect(xs, y, max(xe-xs, 1), 1);
 }
 
+function computeReadCount() {
+    pop = _population.value();
+    sec = _seconds.value();
+    hl = _halfLife.value();
+    under = _undercutRate.value();
+
+    // N(t) = N₀(1/2)^(t/hl)
+    unfired = Math.ceil(pop * ((1/2) ** (sec / hl)));
+    fired = pop - unfired;
+    reads = 2 * fired;
+    reads *= (1 - under);
+
+    return Math.ceil(reads);
+}
+
 function rerender() {
-    reads = generateReads(_numReads.value());
+    reads = generateReads();
     console.log("Redrawing");
 
     // BG
@@ -187,8 +270,9 @@ function rerender() {
     stroke(0, 0, 0);
     hist = lengthHist(reads);
     for (i = 0; i < hist.length; i++) {
-        y = (h - pad) - map_range(i, 0, hist.length, 0, h - pad) - 5;
-        rect(800, y, 300 * hist[i], 5);
+        ph = (h-pad)/hist.length;
+        y = (h - pad) - map_range(i, 0, hist.length, 0, h - pad) - ph;
+        rect(800, y, 300 * hist[i], ph);
     }
 }
 
@@ -196,7 +280,7 @@ function sliderLabel(name, val) {
     return name + ': ' + val;
 }
 
-function makeSlider(name, y, minVal, maxVal, defaultVal) {
+function makeSlider(name, x, y, minVal, maxVal, defaultVal) {
     let step = 1;
     if (maxVal <= 1) {
         step = 0.01;
@@ -206,7 +290,7 @@ function makeSlider(name, y, minVal, maxVal, defaultVal) {
 
     let s = createSlider(minVal, maxVal, defaultVal, step);
     s.size(w/2)
-    s.position(0, y);
+    s.position(x, y);
     let label = createSpan(sliderLabel(name, s.value()));
     label.position(s.x + s.width + 10, y);
     label.size(300);
@@ -218,23 +302,43 @@ function makeSlider(name, y, minVal, maxVal, defaultVal) {
 function setup() {
     createCanvas(w, h);
 
-    y = 0;
-    _numReads = makeSlider("# of reads", y, 0, 1000, 300); y += 20;
-    _ori = makeSlider("ori", y, 0, _genomeLength, _genomeLength / 2); y += 20;
-    _lRate = makeSlider("left fork rate", y, 0, 10000, 2000); y += 20;
-    _rRate = makeSlider("right fork rate", y, 0, 10000, 2000); y += 20;
-    _rateNoise = makeSlider("rate noise", y, 0, 1.0, 0.1); y += 20;
-    _seconds = makeSlider("synthesis time", y, 0, 30, 10); y += 20;
-    _overcutRate = makeSlider("overcut rate", y, 0, 1, 0); y += 20;
-    _overcutExpt = makeSlider("overcut expt", y, 1, 4, 1); y += 20;
-    _block1Loc = makeSlider("block 1 location ", y, 0, _genomeLength, _genomeLength * 1/3); y += 20;
-    _block1Pause = makeSlider("block 1 pause length", y, 0, 30, 0); y += 20;
-    _block2Loc = makeSlider("block 2 location ", y, 0, _genomeLength, _genomeLength * 2/3); y += 20;
-    _block2Pause = makeSlider("block 2 pause length", y, 0, 30, 0); y += 20;
+    x = 10;
+    y = 10;
+    _population = makeSlider("cells", x, y, 0, 3000, 500); y += 20;
+    _seconds = makeSlider("synthesis time", x, y, 0, 30, 10); y += 20;
 
+
+    y += 10;
+    _firingModel = createRadio();
+    _firingModel.option('e', 'exponential firing');
+    _firingModel.option('l', 'linear firing');
+    _firingModel.position(x, y);
+    _firingModel.size(400);
+    _firingModel.selected('e');
+    _firingModel.input(rerender);
+    y += 20;
+    _halfLife = makeSlider("firing half-life", x, y, 0.0, 30, 5); y += 20;
+    _firingProb = makeSlider("firing probability", x, y, 0, 1, 0.1); y += 20;
+    _ori = makeSlider("ori", x, y, 0, _genomeLength, _genomeLength / 2); y += 20;
+    _lRate = makeSlider("left fork rate", x, y, 0, 10000, 2000); y += 20;
+    _rRate = makeSlider("right fork rate", x, y, 0, 10000, 2000); y += 20;
+    _rateNoise = makeSlider("rate noise", x, y, 0, 1.0, 0.1); y += 20;
+    _undercutRate = makeSlider("undercut rate", x, y, 0, 1, 0); y += 20;
+    _overcutRate = makeSlider("overcut rate", x, y, 0, 1, 0); y += 20;
+    _overcutExpt = makeSlider("overcut expt", x, y, 1, 4, 1); y += 20;
+    _block1Loc = makeSlider("block 1 location ", x, y, 0, _genomeLength, _genomeLength * 1/3); y += 20;
+    _block1Pause = makeSlider("block 1 pause length", x, y, 0, 30, 0); y += 20;
+    _block2Loc = makeSlider("block 2 location ", x, y, 0, _genomeLength, _genomeLength * 2/3); y += 20;
+    _block2Pause = makeSlider("block 2 pause length", x, y, 0, 30, 0); y += 20;
+
+    y += 10;
     _redraw = createButton('regen');
-    _redraw.position(0, y);
+    _redraw.position(x, y);
     _redraw.mousePressed(rerender);
+
+    _numReads = createSpan("reads");
+    _numReads.position(x, h-pad-10);
+    _numReads.size(200);
 
     rerender();
 }
