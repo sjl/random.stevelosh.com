@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Ymir</title>
+        <meta name="author" content="Steve Losh">
+        <meta name="description" content="World generation in Javascript.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            body {
+                margin: 0 auto;
+                width: 800px;
+                line-height: 1.4;
+                font-size: 16px;
+                color: #222;
+                font-family: Georgia, Cambira, serif;
+            }
+            h1, h2, h3 {
+                line-height: 1.0;
+                font-weight: normal;
+                font-family: "Hoefler Text", Georgia, Cambira, serif;
+                margin: 0;
+            }
+            h1 {
+                text-align: center;
+                font-size: 64px;
+                margin: 16px 0 0px;
+                padding: 0;
+            }
+            label {
+                display: block;
+            }
+            input, select {
+                margin-bottom: 16px;
+            }
+            #algorithms {
+                border-right: 1px solid #ccc;
+                display: inline-block;
+                width: 250px;
+            }
+            #buttons {
+                text-align: center;
+                padding: 10px 0px;
+            }
+            #render > canvas {
+                border: 1px solid #222;
+            }
+            td {
+                vertical-align: top;
+                padding-right: 30px;
+                padding-left: 30px;
+                border-right: 1px solid #ccc;
+            }
+            td:first-child {
+                padding-left: 0px;
+            }
+            td:last-child {
+                border: none;
+                padding-right: 0px;
+            }
+            a {
+                color: #e50053;
+            }
+            footer {
+                text-align: center;
+                font-size: 13px;
+                font-style: italic;
+                margin-top: 40px;
+                margin-bottom: 100px;
+            }
+            blockquote {
+                font-style: italic;
+                color: #aaa;
+                text-align: center;
+                margin-top: 0;
+            }
+            .keming {
+                letter-spacing: -10px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1><span class="keming">Y</span>mir</h1>
+        <blockquote>
+            &ldquo;Out of Ymir&apos;s flesh was fashioned the earth,
+            and the mountains were made of his bones;
+            the sky from the frost cold giant&apos;s skull,
+            and the ocean out of his blood.&rdquo;
+        </blockquote>
+
+        <div id="render"></div>
+
+        <div id="hud">
+            <div id="buttons">
+                <button id="regenerate">Regenerate</button>
+            </div>
+
+            <table>
+                <tr>
+                    <td>
+                        <form id="main-settings">
+                            <label for="exponent">Heightmap Size</label>
+                            <input type="number" name="exponent" value="6"/>
+
+                            <label for="wireframe">Rendering Mode</label>
+                            <select name="wireframe">
+                                <option value="true">Wireframe</option>
+                                <option value="false">Solid</option>
+                            </select>
+
+                            <label for="wireframe-width">Wireframe Width</label>
+                            <input type="number" name="wireframe-width" value="1.2"/>
+
+                            <label for="normalize">Normalization</label>
+                            <select name="normalize">
+                                <option value="true">Normalized</option>
+                                <option value="false">Unnormalized</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>
+                        <form id="algorithm-selector">
+                            <label for="generation-algorithm">Generation Algorithm</label>
+                            <select name="generation-algorithm" id="generation-algorithm">
+                                <option value="random-noise"         selected="selected">Random Noise</option>
+                                <option value="midpoint-displacement">Midpoint Displacement</option>
+                                <option value="diamond-square" >Diamond Square</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>
+                        <div id="generation-algorithm-settings">
+                            <form id="random-noise-settings">
+                            </form>
+                            <form id="midpoint-displacement-settings">
+                                <label for="initial-spread">Initial Spread</label>
+                                <input type="number" id="" name="initial-spread" value="0.3"/>
+
+                                <label for="spread-reduction">Spread Reduction Rate</label>
+                                <input type="number" id="" name="spread-reduction" value="0.5"/>
+                            </form>
+                            <form id="diamond-square-settings">
+                                <label for="initial-spread">Initial Spread</label>
+                                <input type="number" id="" name="initial-spread" value="0.3"/>
+
+                                <label for="spread-reduction">Spread Reduction Rate</label>
+                                <input type="number" id="" name="spread-reduction" value="0.5"/>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+
+        </div>
+
+        <footer>
+            Made with Lisp and love
+            by <a href="http://stevelosh.com/">Steve Losh</a>
+            in Reykjavík, Iceland.
+
+            <a href="http://bitbucket.org/sjl/ymir/">Code</a>.
+        </footer>
+
+        <script src="lib/jquery.js"></script>
+        <script src="lib/three.js"></script>
+        <script src="lib/trackball-controls.js"></script>
+
+        <script src="bundle.js"></script>
+
+        <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-15328874-9', 'auto');
+        ga('send', 'pageview');
+
+        </script>
+    </body>
+</html>
