@@ -12,7 +12,7 @@ let _genomeLength = 100000;
 let _nBins = 100;
 
 let w = 1000;
-let h = 800;
+let h = 700;
 let pad = 10;
 
 function handleBlock(ori, rate, t, block) {
