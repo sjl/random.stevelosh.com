@@ -34,7 +34,7 @@ function handleBlocks(ori, rate, t, blocks) {
 function computeReadTimesExponential() {
     let result = new Array();
     n = _population.value();
-    hl = _halfLife.value();
+    // hl = _halfLife.value();
     sec = _seconds.value();
     under = _undercutRate.value();
     ts = 0.05;
@@ -135,11 +135,11 @@ function generateReads() {
     seconds = _seconds.value();
     overcutRate = _overcutRate.value();
     overcutExpt = _overcutExpt.value();
-    if (_firingModel.value() == 'e') {
-        times = computeReadTimesExponential();
-    } else if (_firingModel.value() == 'l') {
+    // if (_firingModel.value() == 'e') {
+        // times = computeReadTimesExponential();
+    // } else if (_firingModel.value() == 'l') {
         times = computeReadTimesLinear();
-    }
+    // }
     _numReads.html(times.length + " reads");
 
     for (i = 0; i < times.length; i++) {
@@ -203,7 +203,7 @@ function plotRead(r) {
 function computeReadCount() {
     pop = _population.value();
     sec = _seconds.value();
-    hl = _halfLife.value();
+    // hl = _halfLife.value();
     under = _undercutRate.value();
 
     // N(t) = N₀(1/2)^(t/hl)
@@ -308,16 +308,16 @@ function setup() {
     _seconds = makeSlider("synthesis time", x, y, 0, 30, 10); y += 20;
 
 
-    y += 10;
-    _firingModel = createRadio();
-    _firingModel.option('e', 'exponential firing');
-    _firingModel.option('l', 'linear firing');
-    _firingModel.position(x, y);
-    _firingModel.size(400);
-    _firingModel.selected('e');
-    _firingModel.input(rerender);
-    y += 20;
-    _halfLife = makeSlider("firing half-life", x, y, 0.0, 30, 5); y += 20;
+    // y += 10;
+    // _firingModel = createRadio();
+    // _firingModel.option('e', 'exponential firing');
+    // _firingModel.option('l', 'linear firing');
+    // _firingModel.position(x, y);
+    // _firingModel.size(400);
+    // _firingModel.selected('e');
+    // _firingModel.input(rerender);
+    // y += 20;
+    // _halfLife = makeSlider("firing half-life", x, y, 0.0, 30, 5); y += 20;
     _firingProb = makeSlider("firing probability", x, y, 0, 1, 0.1); y += 20;
     _ori = makeSlider("ori", x, y, 0, _genomeLength, _genomeLength / 2); y += 20;
     _lRate = makeSlider("left fork rate", x, y, 0, 10000, 2000); y += 20;

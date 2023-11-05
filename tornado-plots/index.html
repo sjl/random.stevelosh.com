@@ -9,14 +9,16 @@
     <body>
         <main>
         </main>
-        <p>The graph is 100kb wide.</p>
+        <p>The graph is 100kb wide.  The histogram is frequency of reads.</p>
 
         <ul>
             <li><b>cells:</b> number of cells in the population.</li>
             <li><b>synthesis time:</b> simulated synthesis time (seconds).</li>
-            <li><b>firing model:</b> whether to simulate exponential firing (uses firing half-life), or linear firing (uses firing probability).</li>
-            <li><b>firing half-life:</b> the half-life of the origin with respect to firing (seconds), e.g. a value of 5 means that this origin will fire in half of the cells after 5 seconds. Only used when exponential firing is selected.</li>
-            <li><b>firing probability:</b> the probability this origin will fire each second.  Only used when linear firing is selected.</li>
+            <!-- <li><b>firing model:</b> whether to simulate exponential firing (uses firing half-life), or linear firing (uses firing probability).</li> -->
+            <!-- <li><b>firing half-life:</b> the half-life of the origin with respect to firing (seconds), e.g. a value of 5 means that this origin will fire in half of the cells after 5 seconds. Only used when exponential firing is selected.</li> -->
+            <li><b>firing probability:</b> the probability this origin will fire each second.
+                <!-- Only used when linear firing is selected. -->
+            </li>
             <li><b>ori:</b> position of the origin.</li>
             <li><b>left/right fork rates:</b> how fast each fork progresses (nt/second).</li>
             <li><b>rate noise:</b> how much noise to add to each fork's rate (per fork, proportion of total rate).</li>
